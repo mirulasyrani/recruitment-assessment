@@ -3,22 +3,13 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
-// =======================================================
-// ==> START: Environment Variable Check <==
-// This block will check for required environment variables on startup.
-// If any are missing, it will log a clear error and exit.
-// =======================================================
+// Environment variable check...
 const requiredEnvVars = ['DATABASE_URL', 'JWT_SECRET', 'CORS_ORIGIN'];
 const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
-
 if (missingEnvVars.length > 0) {
-  console.error('FATAL ERROR: Missing required environment variables:');
-  missingEnvVars.forEach(varName => console.error(`- ${varName}`));
-  process.exit(1); // Exit the application with an error code
+  console.error('FATAL ERROR: Missing required environment variables:', missingEnvVars);
+  process.exit(1);
 }
-// =======================================================
-// ==> END: Environment Variable Check <==
-// =======================================================
 
 const { errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
@@ -27,18 +18,19 @@ const candidateRoutes = require('./routes/candidateRoutes');
 const app = express();
 
 // =======================================================
-// ==> START: Simplified CORS Configuration <==
-// This is the most standard and reliable way to set up CORS for deployment.
-// It directly tells the server which origin to allow.
+// ==> START: Manual CORS Header Configuration <==
+// This is a more direct way to handle CORS.
 // =======================================================
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN,
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  const origin = process.env.CORS_ORIGIN;
+  res.header('Access-Control-Allow-Origin', origin);
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  next();
+});
 // =======================================================
-// ==> END: Simplified CORS Configuration <==
+// ==> END: Manual CORS Header Configuration <==
 // =======================================================
 
 app.use(cookieParser());
