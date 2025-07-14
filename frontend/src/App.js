@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { AuthProvider } from './context/authContext'; // ✅ don't import useAuth here
+import { AuthProvider } from './context/authContext'; // ✅ No useAuth here
 
 import Header from './components/Header';
 import PrivateRoute from './components/PrivateRoute';
@@ -12,14 +12,15 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <MainAppRoutes />
+        <AppContent />
       </AuthProvider>
     </Router>
   );
 }
 
-function MainAppRoutes() {
-  const { user } = useAuth(); // ✅ NOW it's safe to use inside AuthProvider
+// ✅ Move useAuth into a child component, after AuthProvider is mounted
+function AppContent() {
+  const { user } = require('./context/authContext').useAuth();
 
   return (
     <div className="bg-slate-100 min-h-screen text-slate-800">
