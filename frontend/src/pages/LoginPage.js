@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/authContext';
 import { LogIn, Mail, Lock } from 'lucide-react';
@@ -7,12 +7,8 @@ import { LogIn, Mail, Lock } from 'lucide-react';
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const { login, user } = useAuth();
-
-  // If the user is already logged in, redirect them to the dashboard.
-  if (user) {
-    return <Navigate to="/" />;
-  }
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,14 +18,11 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // The login function now handles setting the user state.
-      // We no longer navigate from here.
-      await login(formData.email, formData.password);
+      // Pass the navigate function directly to the login handler
+      await login(formData.email, formData.password, navigate);
       toast.success('Login successful!');
-      // The component will re-render, and the check above will redirect.
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed.');
-    } finally {
       setLoading(false);
     }
   };

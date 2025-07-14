@@ -25,18 +25,22 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, navigate) => {
     const { data } = await api.post('/auth/login', { email, password });
     localStorage.setItem('token', data.token);
     api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
     setUser(data.user);
+    // Navigate *after* setting the user state.
+    navigate('/');
   };
 
-  const register = async (userData) => {
+  const register = async (userData, navigate) => {
     const { data } = await api.post('/auth/register', userData);
     localStorage.setItem('token', data.token);
     api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
     setUser(data.user);
+    // Navigate *after* setting the user state.
+    navigate('/');
   };
 
   const logout = () => {
