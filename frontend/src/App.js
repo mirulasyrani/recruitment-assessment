@@ -1,12 +1,43 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { AuthProvider } from './context/authContext';
+import { AuthProvider, useAuth } from './context/authContext';
+import { Loader2 } from 'lucide-react';
 
 import Header from './components/Header';
-import PrivateRoute from './components/PrivateRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
+
+// This new component contains all the routing logic.
+const AppRoutes = () => {
+  const { user, loading } = useAuth();
+
+  // Show a loading spinner while the app is checking for a user session.
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-indigo-600" />
+      </div>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route 
+        path="/" 
+        element={user ? <DashboardPage /> : <Navigate to="/login" />} 
+      />
+      <Route 
+        path="/login" 
+        element={<LoginPage />} 
+      />
+      <Route 
+        path="/register" 
+        element={<RegisterPage />} 
+      />
+    </Routes>
+  );
+};
 
 function App() {
   return (
@@ -15,18 +46,7 @@ function App() {
         <div className="bg-slate-100 min-h-screen text-slate-800">
           <Header />
           <main className="container mx-auto p-4">
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route
-                path="/"
-                element={
-                  <PrivateRoute>
-                    <DashboardPage />
-                  </PrivateRoute>
-                }
-              />
-            </Routes>
+            <AppRoutes />
           </main>
           <ToastContainer
             position="top-right"
