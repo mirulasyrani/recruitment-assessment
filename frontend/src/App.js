@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { AuthProvider } from './context/authContext'; // Corrected Path
+import { AuthProvider } from './context/authContext';
 
 import Header from './components/Header';
 import PrivateRoute from './components/PrivateRoute';
