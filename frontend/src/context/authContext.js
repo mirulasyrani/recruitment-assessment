@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
           const { data } = await api.get('/auth/me');
           setUser(data);
         } catch (error) {
+          console.error('Auth check failed:', error?.response?.data || error.message);
           localStorage.removeItem('token');
           delete api.defaults.headers.common['Authorization'];
         }
@@ -26,10 +27,20 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password });
-    localStorage.setItem('token', data.token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-    setUser(data.user);
+    try {
+      const { data } = await api.post('/auth/login', { email, password });
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+        setUser(data.user);
+        return true; // ✅ signal successful login
+      } else {
+        throw new Error('Token not received');
+      }
+    } catch (err) {
+      console.error('Login failed:', err?.response?.data || err.message);
+      throw err;
+    }
   };
 
   const register = async (userData) => {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/authContext';
 import { LogIn, Mail, Lock } from 'lucide-react';
@@ -7,8 +7,7 @@ import { LogIn, Mail, Lock } from 'lucide-react';
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const { login, user, loading: authLoading } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,14 +17,18 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(formData.email, formData.password);
+      await login(formData.email, formData.password); // AuthContext will handle navigation
       toast.success('Login successful!');
-      navigate('/', { replace: true }); // Navigate to dashboard
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed.');
       setLoading(false);
     }
   };
+
+  // ✅ Redirect if already logged in (useful on reload or direct hit to /login)
+  if (!authLoading && user) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <div className="flex items-center justify-center py-12">
@@ -33,6 +36,7 @@ const LoginPage = () => {
         <div className="bg-white p-8 rounded-2xl shadow-lg">
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Recruiter Login</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email Field */}
             <div>
               <label className="text-sm font-bold text-gray-600 block mb-2">Email</label>
               <div className="relative">
@@ -49,6 +53,8 @@ const LoginPage = () => {
                 />
               </div>
             </div>
+
+            {/* Password Field */}
             <div>
               <label className="text-sm font-bold text-gray-600 block mb-2">Password</label>
               <div className="relative">
@@ -65,6 +71,8 @@ const LoginPage = () => {
                 />
               </div>
             </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -74,6 +82,8 @@ const LoginPage = () => {
               {!loading && <LogIn className="ml-2" />}
             </button>
           </form>
+
+          {/* Registration Prompt */}
           <p className="text-center text-sm text-gray-600 mt-6">
             Don't have an account?{' '}
             <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
