@@ -16,19 +16,23 @@ const candidateRoutes = require('./routes/candidateRoutes');
 
 const app = express();
 
+// ✅ Updated CORS options
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN,
+  origin: process.env.CORS_ORIGIN, // e.g., https://recruitment-assessment.vercel.app
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-app.use(cors(corsOptions));
-
+app.use(cors(corsOptions)); // 🛡 Apply updated CORS config
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// ✅ API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/candidates', candidateRoutes);
 
+// ✅ Error handler
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
