@@ -17,7 +17,7 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(formData.email, formData.password); // AuthContext will handle navigation
+      await login(formData.email, formData.password);
       toast.success('Login successful!');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed.');
@@ -25,9 +25,9 @@ const LoginPage = () => {
     }
   };
 
-  // ✅ Redirect if already logged in (useful on reload or direct hit to /login)
+  // ✅ Redirect to "/" instead of "/dashboard"
   if (!authLoading && user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return (
@@ -36,7 +36,6 @@ const LoginPage = () => {
         <div className="bg-white p-8 rounded-2xl shadow-lg">
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Recruiter Login</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
             <div>
               <label className="text-sm font-bold text-gray-600 block mb-2">Email</label>
               <div className="relative">
@@ -54,7 +53,6 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Password Field */}
             <div>
               <label className="text-sm font-bold text-gray-600 block mb-2">Password</label>
               <div className="relative">
@@ -72,7 +70,6 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -83,9 +80,8 @@ const LoginPage = () => {
             </button>
           </form>
 
-          {/* Registration Prompt */}
           <p className="text-center text-sm text-gray-600 mt-6">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
               Register here
             </Link>

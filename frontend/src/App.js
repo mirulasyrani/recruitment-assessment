@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './context/authContext';
 
@@ -19,13 +19,14 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route
-                path="/"
+                path="/dashboard"
                 element={
                   <PrivateRoute>
                     <DashboardPage />
                   </PrivateRoute>
                 }
               />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </main>
           <ToastContainer

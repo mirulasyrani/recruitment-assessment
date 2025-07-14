@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/authContext';
 import { User, Mail, Lock } from 'lucide-react';
@@ -14,6 +14,7 @@ const RegisterPage = () => {
 
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
+  const navigate = useNavigate(); // 👈 Add navigation hook
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,6 +26,7 @@ const RegisterPage = () => {
     try {
       await register(formData);
       toast.success('Registration successful!');
+      navigate('/dashboard'); // 👈 Redirect to dashboard after successful registration
     } catch (error) {
       toast.error(error.response?.data?.message || 'Registration failed.');
     }
