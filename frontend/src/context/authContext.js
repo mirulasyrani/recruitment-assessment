@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import api from '../services/api';
 
 const AuthContext = createContext();
@@ -7,42 +7,46 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // This effect now tries to fetch the user directly.
-  // If a valid cookie exists, it will succeed. If not, it will fail gracefully.
+  // This function is now the single source of truth for checking user status.
+  const checkUserStatus = useCallback(async () => {
+    try {
+      const { data } = await api.get('/auth/me');
+      setUser(data);
+    } catch (error) {
+      setUser(null);
+    } finally {
+      // We only set loading to false after the initial check.
+      if (loading) setLoading(false);
+    }
+  }, [loading]); // Dependency on loading to prevent re-runs
+
+  // Initial check when the app loads
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const { data } = await api.get('/auth/me');
-        setUser(data);
-      } catch (error) {
-        // This is expected if the user is not logged in
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadUser();
-  }, []);
+    checkUserStatus();
+  }, [checkUserStatus]);
 
-  // Login no longer handles tokens. It just sets the user state.
   const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password });
-    setUser(data);
+    // Step 1: Perform the login API call. The backend will set the cookie.
+    await api.post('/auth/login', { email, password });
+    // Step 2: Immediately re-check the user status. This forces the app
+    // to use the new cookie and re-validates the user session.
+    await checkUserStatus();
   };
 
-  // Register no longer handles tokens. It just sets the user state.
   const register = async (userData) => {
-    const { data } = await api.post('/auth/register', userData);
-    setUser(data);
+    // Same logic as login: register, then immediately re-validate.
+    await api.post('/auth/register', userData);
+    await checkUserStatus();
   };
 
-  // Logout now calls the backend to clear the cookie.
   const logout = async () => {
     try {
       await api.post('/auth/logout');
       setUser(null);
     } catch (error) {
       console.error("Logout failed", error);
+      // Still clear user on the frontend even if backend call fails
+      setUser(null);
     }
   };
 
