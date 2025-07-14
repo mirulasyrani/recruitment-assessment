@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import api from '../services/api';
 
 const AuthContext = createContext();
@@ -27,21 +27,23 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });
     localStorage.setItem('token', data.token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-    setUser(data.user);
+    // This is the sure-fire fix. It forces the browser to reload the page.
+    // On reload, the useEffect above will run, find the new token,
+    // and successfully authenticate the user.
+    window.location.reload();
   };
 
   const register = async (userData) => {
     const { data } = await api.post('/auth/register', userData);
     localStorage.setItem('token', data.token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-    setUser(data.user);
+    // Same reload strategy for registration.
+    window.location.reload();
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
-    setUser(null);
+    // Reload after logout to ensure all state is cleared.
+    window.location.reload();
   };
 
   return (
