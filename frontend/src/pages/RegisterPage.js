@@ -5,7 +5,12 @@ import { useAuth } from '../context/authContext';
 import { UserPlus, Mail, Lock } from 'lucide-react';
 
 const RegisterPage = () => {
-  const [formData, setFormData] = useState({ full_name: '', email: '', password: '' });
+  const [formData, setFormData] = useState({
+  username: '',
+  email: '',
+  password: '',
+  fullName: '',
+});
   const [loading, setLoading] = useState(false);
   const { register, user, loading: authLoading } = useAuth();
 
