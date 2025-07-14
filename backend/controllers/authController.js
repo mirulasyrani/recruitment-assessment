@@ -7,29 +7,6 @@ const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
-// --- Helper to set the cookie ---
-const sendTokenResponse = (user, statusCode, res) => {
-  const token = generateToken(user.id || user._id);
-
-  const options = {
-    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-    httpOnly: true, // Prevents access from JavaScript (XSS protection)
-    secure: true, // Required for cross-domain cookies
-    sameSite: 'none', 
-    path: '/', // <-- CRITICAL: Make cookie available to all paths
-  };
-
-  res
-    .status(statusCode)
-    .cookie('token', token, options)
-    .json({
-      _id: user.id || user._id,
-      username: user.username,
-      email: user.email,
-      fullName: user.full_name,
-    });
-};
-
 const registerUser = async (req, res, next) => {
   try {
     const { username, email, password, fullName } = registerSchema.parse(req.body);
@@ -42,8 +19,22 @@ const registerUser = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     const newUserQuery = 'INSERT INTO users (username, email, password_hash, full_name) VALUES ($1, $2, $3, $4) RETURNING id, username, email, full_name';
     const { rows } = await db.query(newUserQuery, [username, email, hashedPassword, fullName]);
-    
-    sendTokenResponse(rows[0], 201, res);
+    const newUser = rows[0];
+
+    if (newUser) {
+      res.status(201).json({
+        token: generateToken(newUser.id),
+        user: {
+            _id: newUser.id,
+            username: newUser.username,
+            email: newUser.email,
+            fullName: newUser.full_name,
+        }
+      });
+    } else {
+      res.status(400);
+      throw new Error('Invalid user data');
+    }
   } catch (error) {
     next(error);
   }
@@ -55,7 +46,15 @@ const loginUser = async (req, res, next) => {
         const { rows } = await db.query('SELECT * FROM users WHERE email = $1', [email]);
         const user = rows[0];
         if (user && (await bcrypt.compare(password, user.password_hash))) {
-            sendTokenResponse(user, 200, res);
+            res.json({
+                token: generateToken(user.id),
+                user: {
+                    _id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    fullName: user.full_name,
+                }
+            });
         } else {
             res.status(401);
             throw new Error('Invalid credentials');
@@ -65,20 +64,8 @@ const loginUser = async (req, res, next) => {
     }
 };
 
-const logoutUser = (req, res, next) => {
-  // Also set sameSite and secure flags when clearing the cookie
-  res.cookie('token', 'none', {
-    expires: new Date(Date.now() + 10 * 1000),
-    httpOnly: true,
-    sameSite: 'none',
-    secure: true,
-    path: '/', // <-- CRITICAL: Make sure to clear the correct cookie
-  });
-  res.status(200).json({ success: true, data: {} });
-};
-
 const getMe = async (req, res, next) => {
   res.status(200).json(req.user);
 };
 
-module.exports = { registerUser, loginUser, logoutUser, getMe };
+module.exports = { registerUser, loginUser, getMe };

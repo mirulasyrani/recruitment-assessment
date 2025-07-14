@@ -7,45 +7,41 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // This function is the single source of truth for checking user status.
-  const checkUserStatus = useCallback(async () => {
-    try {
-      const { data } = await api.get('/auth/me');
-      setUser(data);
-    } catch (error) {
-      setUser(null);
-    } finally {
-      // We only set loading to false after the initial check.
-      if (loading) setLoading(false);
-    }
-  }, [loading]);
-
-  // Initial check when the app loads
   useEffect(() => {
-    checkUserStatus();
-  }, [checkUserStatus]);
+    const loadUser = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        try {
+          const { data } = await api.get('/auth/me');
+          setUser(data);
+        } catch (error) {
+          localStorage.removeItem('token');
+        }
+      }
+      setLoading(false);
+    };
+    loadUser();
+  }, []);
 
   const login = async (email, password) => {
-    // The backend sets the cookie and returns the user data.
     const { data } = await api.post('/auth/login', { email, password });
-    // Directly use the user data from the response to set the state.
-    setUser(data);
+    localStorage.setItem('token', data.token);
+    api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+    setUser(data.user);
   };
 
   const register = async (userData) => {
-    // Same logic as login: register and use the response data directly.
     const { data } = await api.post('/auth/register', userData);
-    setUser(data);
+    localStorage.setItem('token', data.token);
+    api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+    setUser(data.user);
   };
 
-  const logout = async () => {
-    try {
-      await api.post('/auth/logout');
-      setUser(null);
-    } catch (error) {
-      console.error("Logout failed", error);
-      setUser(null);
-    }
+  const logout = () => {
+    localStorage.removeItem('token');
+    delete api.defaults.headers.common['Authorization'];
+    setUser(null);
   };
 
   return (

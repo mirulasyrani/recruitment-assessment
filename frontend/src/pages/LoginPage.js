@@ -22,8 +22,7 @@ const LoginPage = () => {
       toast.success('Login successful!');
       navigate('/');
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed. Please check your credentials.';
-      toast.error(message);
+      toast.error(error.response?.data?.message || 'Login failed.');
       setLoading(false);
     }
   };
@@ -38,39 +37,17 @@ const LoginPage = () => {
               <label className="text-sm font-bold text-gray-600 block mb-2">Email</label>
               <div className="relative">
                 <Mail className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="email"
-                  name="email"
-                  autoComplete="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                  placeholder="you@example.com"
-                />
+                <input type="email" name="email" autoComplete="email" value={formData.email} onChange={handleChange} required className="w-full p-3 pl-10 border border-gray-300 rounded-lg" placeholder="you@example.com" />
               </div>
             </div>
             <div>
               <label className="text-sm font-bold text-gray-600 block mb-2">Password</label>
               <div className="relative">
                 <Lock className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="password"
-                  name="password"
-                  autoComplete="current-password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                  placeholder="••••••••"
-                />
+                <input type="password" name="password" autoComplete="current-password" value={formData.password} onChange={handleChange} required className="w-full p-3 pl-10 border border-gray-300 rounded-lg" placeholder="••••••••" />
               </div>
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center items-center bg-indigo-600 text-white p-3 rounded-lg font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition disabled:bg-indigo-400"
-            >
+            <button type="submit" disabled={loading} className="w-full flex justify-center items-center bg-indigo-600 text-white p-3 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-indigo-400">
               {loading ? 'Logging in...' : 'Login'}
               {!loading && <LogIn className="ml-2" />}
             </button>
