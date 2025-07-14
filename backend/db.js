@@ -3,11 +3,11 @@ const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  // Optional: uncomment if using self-signed SSL certs
-  // ssl: { rejectUnauthorized: false },
+  ssl: {
+    rejectUnauthorized: false, // ✅ Required by Render to enable SSL/TLS
+  },
 });
 
-// Optional: log all queries in non-production environments
 const isDev = process.env.NODE_ENV !== 'production';
 
 module.exports = {
