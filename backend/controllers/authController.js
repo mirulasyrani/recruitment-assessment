@@ -14,8 +14,9 @@ const sendTokenResponse = (user, statusCode, res) => {
   const options = {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
     httpOnly: true, // Prevents access from JavaScript (XSS protection)
-    secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
-    sameSite: 'strict'
+    // SameSite=None and Secure=true are required for cross-domain cookies
+    sameSite: 'none', 
+    secure: true, 
   };
 
   res
@@ -42,7 +43,7 @@ const registerUser = async (req, res, next) => {
     const newUserQuery = 'INSERT INTO users (username, email, password_hash, full_name) VALUES ($1, $2, $3, $4) RETURNING id, username, email, full_name';
     const { rows } = await db.query(newUserQuery, [username, email, hashedPassword, fullName]);
     
-    sendTokenResponse(rows[0], 201, res); // <-- USE HELPER
+    sendTokenResponse(rows[0], 201, res);
   } catch (error) {
     next(error);
   }
@@ -54,7 +55,7 @@ const loginUser = async (req, res, next) => {
         const { rows } = await db.query('SELECT * FROM users WHERE email = $1', [email]);
         const user = rows[0];
         if (user && (await bcrypt.compare(password, user.password_hash))) {
-            sendTokenResponse(user, 200, res); // <-- USE HELPER
+            sendTokenResponse(user, 200, res);
         } else {
             res.status(401);
             throw new Error('Invalid credentials');
@@ -64,11 +65,13 @@ const loginUser = async (req, res, next) => {
     }
 };
 
-// --- NEW Logout Function ---
 const logoutUser = (req, res, next) => {
+  // Also set sameSite and secure flags when clearing the cookie
   res.cookie('token', 'none', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
+    sameSite: 'none',
+    secure: true,
   });
   res.status(200).json({ success: true, data: {} });
 };

@@ -6,8 +6,7 @@ require('dotenv').config();
 // =======================================================
 // ==> START: Environment Variable Check <==
 // This block will check for required environment variables on startup.
-// If any are missing, it will log a clear error and exit,
-// which you will see in your Render logs.
+// If any are missing, it will log a clear error and exit.
 // =======================================================
 const requiredEnvVars = ['DATABASE_URL', 'JWT_SECRET', 'CORS_ORIGIN'];
 const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
@@ -28,34 +27,18 @@ const candidateRoutes = require('./routes/candidateRoutes');
 const app = express();
 
 // =======================================================
-// ==> START: Robust CORS Configuration <==
-// This is a more robust way to handle CORS for deployment.
-// It explicitly checks the request's origin against the one in your
-// environment variables.
+// ==> START: Simplified CORS Configuration <==
+// This is the most standard and reliable way to set up CORS for deployment.
+// It directly tells the server which origin to allow.
 // =======================================================
-const allowedOrigins = [process.env.CORS_ORIGIN];
-
 const corsOptions = {
-  origin: (origin, callback) => {
-    // Log the origin for debugging purposes
-    console.log(`CORS Check: Request from origin: ${origin}`);
-    
-    // Check if the incoming origin is in our list of allowed origins
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      // If it is, allow the request
-      callback(null, true);
-    } else {
-      // If it's not, block the request with a CORS error
-      console.error(`CORS Error: Origin ${origin} not allowed.`);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: process.env.CORS_ORIGIN,
   credentials: true,
 };
 
 app.use(cors(corsOptions));
 // =======================================================
-// ==> END: Robust CORS Configuration <==
+// ==> END: Simplified CORS Configuration <==
 // =======================================================
 
 app.use(cookieParser());
