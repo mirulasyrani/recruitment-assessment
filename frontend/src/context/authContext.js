@@ -17,7 +17,6 @@ export const AuthProvider = ({ children }) => {
           setUser(data);
         } catch (error) {
           localStorage.removeItem('token');
-          delete api.defaults.headers.common['Authorization'];
         }
       }
       setLoading(false);
@@ -25,28 +24,27 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, []);
 
-  const login = async (email, password, navigate) => {
+  const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });
     localStorage.setItem('token', data.token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-    setUser(data.user);
-    // Navigate *after* setting the user state.
-    navigate('/');
+    // This forces a full page reload, which makes the browser
+    // correctly use the new token on the next page load.
+    window.location.reload();
   };
 
-  const register = async (userData, navigate) => {
+  const register = async (userData) => {
     const { data } = await api.post('/auth/register', userData);
     localStorage.setItem('token', data.token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-    setUser(data.user);
-    // Navigate *after* setting the user state.
-    navigate('/');
+    // Same reload strategy for registration.
+    window.location.reload();
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
+    // Reload after logout to ensure all state is cleared.
+    window.location.reload();
   };
 
   return (

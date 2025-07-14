@@ -14,7 +14,6 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const { register, user } = useAuth();
 
-  // If the user is already logged in, redirect them to the dashboard.
   if (user) {
     return <Navigate to="/" />;
   }
@@ -27,11 +26,8 @@ const RegisterPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // The register function will now handle setting the user state.
-      // We no longer navigate from here.
       await register(formData);
-      toast.success('Registration successful!');
-      // The component will re-render, and the check above will redirect.
+      // The page will reload on success.
     } catch (error) {
       const message = error.response?.data?.message || 'Registration failed.';
       if (error.response?.data?.errors) {
@@ -40,8 +36,7 @@ const RegisterPage = () => {
       } else {
         toast.error(message);
       }
-    } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
