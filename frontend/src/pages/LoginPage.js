@@ -9,7 +9,6 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const { login, user } = useAuth();
 
-  // If a user is already logged in, redirect them away from this page.
   if (user) {
     return <Navigate to="/" replace />;
   }
@@ -23,8 +22,6 @@ const LoginPage = () => {
     setLoading(true);
     try {
       await login(formData.email, formData.password);
-      toast.success('Login successful!');
-      // Navigation is now handled by the App component's re-render.
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed.');
     } finally {

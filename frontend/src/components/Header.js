@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
-import { LogOut, User, Briefcase } from 'lucide-react';
+import { LogOut, Briefcase } from 'lucide-react';
 
 const Header = () => {
   const { user, logout } = useAuth();

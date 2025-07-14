@@ -12,10 +12,8 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCandidate, setEditingCandidate] = useState(null);
-  
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const fetchCandidates = useCallback(async () => {
@@ -24,7 +22,6 @@ const DashboardPage = () => {
       const params = {};
       if (debouncedSearchTerm) params.q = debouncedSearchTerm;
       if (statusFilter) params.status = statusFilter;
-      
       const { data } = await api.get('/candidates', { params });
       setCandidates(data);
     } catch (error) {
@@ -73,7 +70,6 @@ const DashboardPage = () => {
   return (
     <div className="space-y-6">
       <DashboardStats candidates={candidates} />
-      
       <div className="bg-white p-4 rounded-lg shadow-md">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
           <div className="relative md:col-span-1">
@@ -83,14 +79,14 @@ const DashboardPage = () => {
               placeholder="Search by name, position, skills..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              className="w-full p-2 pl-10 border border-gray-300 rounded-lg"
             />
           </div>
           <div className="md:col-span-1">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              className="w-full p-2 border border-gray-300 rounded-lg"
             >
               <option value="">All Statuses</option>
               <option value="applied">Applied</option>
@@ -105,28 +101,26 @@ const DashboardPage = () => {
             {(searchTerm || statusFilter) && (
                 <button
                     onClick={clearFilters}
-                    className="flex items-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg transition duration-300"
+                    className="flex items-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg"
                 >
                     <X className="h-5 w-5 mr-1" /> Clear
                 </button>
             )}
             <button
               onClick={handleAdd}
-              className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+              className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg"
             >
               <Plus className="h-5 w-5 mr-2" /> Add Candidate
             </button>
           </div>
         </div>
       </div>
-
       <CandidateList
         candidates={candidates}
         onEdit={handleEdit}
         onDelete={handleDelete}
         loading={loading}
       />
-
       {isModalOpen && (
         <CandidateFormModal
           isOpen={isModalOpen}

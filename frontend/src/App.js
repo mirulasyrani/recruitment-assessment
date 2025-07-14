@@ -29,11 +29,11 @@ const AppRoutes = () => {
       />
       <Route 
         path="/login" 
-        element={<LoginPage />} 
+        element={user ? <Navigate to="/" replace /> : <LoginPage />} 
       />
       <Route 
         path="/register" 
-        element={<RegisterPage />} 
+        element={user ? <Navigate to="/" replace /> : <RegisterPage />} 
       />
       {/* Add a catch-all redirect for any other routes */}
       <Route path="*" element={<Navigate to="/" replace />} />
