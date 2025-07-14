@@ -3,20 +3,32 @@ const router = express.Router();
 const candidateController = require('../controllers/candidateController');
 const { protect } = require('../middleware/authMiddleware');
 
-// Apply the 'protect' middleware to all routes in this file.
-// This fulfills the requirement to have an auth check on all candidate endpoints.
+// Apply protection middleware to all candidate routes
 router.use(protect);
 
-router.route('/')
-    .get(candidateController.getCandidates)
-    .post(candidateController.createCandidate);
+// @route   GET /api/candidates
+// @desc    Get all candidates for the recruiter
+// @access  Private
+router.get('/', candidateController.getCandidates);
 
-router.route('/:id')
-    .get(candidateController.getCandidateById)
-    .put(candidateController.updateCandidate)
-    .delete(candidateController.deleteCandidate);
+// @route   POST /api/candidates
+// @desc    Create a new candidate
+// @access  Private
+router.post('/', candidateController.createCandidate);
 
-// Note: Search and Filter are combined into the main GET endpoint for simplicity.
-// The controller logic will handle query parameters like `?q=term` and `?status=applied`.
+// @route   GET /api/candidates/:id
+// @desc    Get a specific candidate by ID
+// @access  Private
+router.get('/:id', candidateController.getCandidateById);
+
+// @route   PUT /api/candidates/:id
+// @desc    Update a candidate by ID
+// @access  Private
+router.put('/:id', candidateController.updateCandidate);
+
+// @route   DELETE /api/candidates/:id
+// @desc    Delete a candidate by ID
+// @access  Private
+router.delete('/:id', candidateController.deleteCandidate);
 
 module.exports = router;
