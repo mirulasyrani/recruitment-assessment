@@ -1,0 +1,44 @@
+# Node dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Build output
+/build
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor directories and files
+.vscode/
+.idea/
+.DS_Store
+*.sublime-workspace
+*.sublime-project
+
+# Mac system files
+*.DS_Store
+
+# Optional: OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Coverage reports
+/coverage
+
+# Optional: log files
+*.log
+
+# Optional: cache directories
+.cache
