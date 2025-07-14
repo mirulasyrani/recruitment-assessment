@@ -25,7 +25,7 @@ const AppRoutes = () => {
     <Routes>
       <Route 
         path="/" 
-        element={user ? <DashboardPage /> : <Navigate to="/login" />} 
+        element={user ? <DashboardPage /> : <Navigate to="/login" replace />} 
       />
       <Route 
         path="/login" 
@@ -35,6 +35,8 @@ const AppRoutes = () => {
         path="/register" 
         element={<RegisterPage />} 
       />
+      {/* Add a catch-all redirect for any other routes */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

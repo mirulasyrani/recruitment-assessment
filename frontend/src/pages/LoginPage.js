@@ -11,7 +11,7 @@ const LoginPage = () => {
 
   // If a user is already logged in, redirect them away from this page.
   if (user) {
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
 
   const handleChange = (e) => {
