@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const jwt =require('jsonwebtoken');
 const db = require('../db');
 const { registerSchema, loginSchema } = require('../validation/schemas');
 
@@ -42,10 +42,23 @@ const registerUser = async (req, res, next) => {
 
 const loginUser = async (req, res, next) => {
     try {
+        console.log("Login attempt received for email:", req.body.email);
         const { email, password } = loginSchema.parse(req.body);
+
         const { rows } = await db.query('SELECT * FROM users WHERE email = $1', [email]);
         const user = rows[0];
-        if (user && (await bcrypt.compare(password, user.password_hash))) {
+
+        if (!user) {
+            console.error("Login Error: No user found with that email.");
+            res.status(401);
+            throw new Error('Invalid credentials');
+        }
+        
+        console.log("User found in DB. Comparing passwords...");
+        const isMatch = await bcrypt.compare(password, user.password_hash);
+
+        if (isMatch) {
+            console.log("Password comparison successful. Sending token.");
             res.json({
                 token: generateToken(user.id),
                 user: {
@@ -56,6 +69,7 @@ const loginUser = async (req, res, next) => {
                 }
             });
         } else {
+            console.error("Login Error: Password comparison failed.");
             res.status(401);
             throw new Error('Invalid credentials');
         }
