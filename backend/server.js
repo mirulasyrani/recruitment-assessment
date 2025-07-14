@@ -13,7 +13,7 @@ const app = express();
 // to send cookies to the backend.
 app.use(cors({
   credentials: true,
-  origin: 'http://localhost:3000' // Replace with your frontend URL in production
+  origin: 'https://recruitment-assessment.vercel.app/' 
 }));
 
 app.use(cookieParser()); // <-- ADD THIS
