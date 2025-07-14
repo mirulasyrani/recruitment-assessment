@@ -1,9 +1,11 @@
 import axios from 'axios';
-const API_URL = 'https://recruitment-assessment.onrender.com/';
+
+// This is the corrected URL. It MUST include the /api prefix.
+const API_URL = 'https://recruitment-assessment.onrender.com/api';
 
 const api = axios.create({ 
   baseURL: API_URL,
-  withCredentials: true // <-- THIS IS CRUCIAL for sending cookies
+  withCredentials: true // This is crucial for sending cookies
 });
 
 api.interceptors.response.use(
@@ -13,4 +15,5 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
 export default api;
