@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { AuthProvider } from './context/authContext';
+import { AuthProvider, useAuth } from './context/authContext';
 
 import Header from './components/Header';
 import PrivateRoute from './components/PrivateRoute';
@@ -9,6 +9,8 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 
 function App() {
+  const { user } = useAuth() || {};
+
   return (
     <Router>
       <AuthProvider>
@@ -26,9 +28,12 @@ function App() {
                   </PrivateRoute>
                 }
               />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              {/* Default: redirect root */}
+              <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
+              <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </main>
+
           <ToastContainer
             position="top-right"
             autoClose={3000}

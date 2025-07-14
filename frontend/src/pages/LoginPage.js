@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/authContext';
 import { LogIn, Mail, Lock } from 'lucide-react';
@@ -8,6 +8,7 @@ const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const { login, user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,15 +20,16 @@ const LoginPage = () => {
     try {
       await login(formData.email, formData.password);
       toast.success('Login successful!');
+      navigate('/dashboard'); // 🔁 Explicit redirect
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed.');
+    } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Redirect to "/" instead of "/dashboard"
   if (!authLoading && user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (
@@ -43,7 +45,6 @@ const LoginPage = () => {
                 <input
                   type="email"
                   name="email"
-                  autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -60,7 +61,6 @@ const LoginPage = () => {
                 <input
                   type="password"
                   name="password"
-                  autoComplete="current-password"
                   value={formData.password}
                   onChange={handleChange}
                   required

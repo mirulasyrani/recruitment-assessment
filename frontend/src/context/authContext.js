@@ -7,49 +7,66 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const token = localStorage.getItem('token');
+
+  // 🔄 Load user on mount if token exists
   useEffect(() => {
-    const loadUser = async () => {
-      const token = localStorage.getItem('token');
+    const fetchUser = async () => {
       if (token && token !== 'undefined') {
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         try {
           const { data } = await api.get('/auth/me');
           setUser(data);
-        } catch (error) {
-          console.error('Auth check failed:', error?.response?.data || error.message);
-          localStorage.removeItem('token');
-          delete api.defaults.headers.common['Authorization'];
+        } catch (err) {
+          console.error('🔒 Auth check failed:', err?.response?.data || err.message);
+          logout(); // force logout if token invalid
         }
       }
       setLoading(false);
     };
-    loadUser();
+
+    fetchUser();
   }, []);
 
+  // ✅ Login function
   const login = async (email, password) => {
     try {
       const { data } = await api.post('/auth/login', { email, password });
-      if (data.token) {
+
+      if (data?.token && data?.user) {
         localStorage.setItem('token', data.token);
         api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
         setUser(data.user);
-        return true; // ✅ signal successful login
+        return true;
       } else {
-        throw new Error('Token not received');
+        throw new Error('Login failed: No token/user received');
       }
     } catch (err) {
-      console.error('Login failed:', err?.response?.data || err.message);
+      console.error('❌ Login error:', err?.response?.data || err.message);
       throw err;
     }
   };
 
+  // ✅ Register function
   const register = async (userData) => {
-    const { data } = await api.post('/auth/register', userData);
-    localStorage.setItem('token', data.token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-    setUser(data.user);
+    try {
+      const { data } = await api.post('/auth/register', userData);
+
+      if (data?.token && data?.user) {
+        localStorage.setItem('token', data.token);
+        api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+        setUser(data.user);
+        return true;
+      } else {
+        throw new Error('Registration failed: No token/user received');
+      }
+    } catch (err) {
+      console.error('❌ Registration error:', err?.response?.data || err.message);
+      throw err;
+    }
   };
 
+  // ✅ Logout function
   const logout = () => {
     localStorage.removeItem('token');
     delete api.defaults.headers.common['Authorization'];
@@ -57,7 +74,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        isAuthenticated: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
