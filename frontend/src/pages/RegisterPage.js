@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/authContext';
 import { UserPlus, User, Mail, Lock } from 'lucide-react';
@@ -12,11 +12,8 @@ const RegisterPage = () => {
     password: '',
   });
   const [loading, setLoading] = useState(false);
-  const { register, user } = useAuth();
-
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -27,6 +24,8 @@ const RegisterPage = () => {
     setLoading(true);
     try {
       await register(formData);
+      toast.success('Registration successful!');
+      navigate('/', { replace: true }); // Navigate to dashboard
     } catch (error) {
       const message = error.response?.data?.message || 'Registration failed.';
       if (error.response?.data?.errors) {
@@ -35,7 +34,6 @@ const RegisterPage = () => {
       } else {
         toast.error(message);
       }
-    } finally {
       setLoading(false);
     }
   };

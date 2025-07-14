@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/authContext';
 import { LogIn, Mail, Lock } from 'lucide-react';
@@ -7,11 +7,8 @@ import { LogIn, Mail, Lock } from 'lucide-react';
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const { login, user } = useAuth();
-
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,9 +19,10 @@ const LoginPage = () => {
     setLoading(true);
     try {
       await login(formData.email, formData.password);
+      toast.success('Login successful!');
+      navigate('/', { replace: true }); // Navigate to dashboard
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed.');
-    } finally {
       setLoading(false);
     }
   };
