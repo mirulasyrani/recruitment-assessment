@@ -31,14 +31,15 @@ export const AuthProvider = ({ children }) => {
     // The backend sends back an object with { token, user }
     const { data } = await api.post('/auth/login', { email, password });
     
-    // 1. Store the token
+    // 1. Store the token for future sessions
     localStorage.setItem('token', data.token);
     
-    // 2. Set the auth header for future requests
+    // 2. Set the auth header for any immediate subsequent requests
     api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
     
-    // 3. Set the user state directly. This will cause React to re-render
-    //    and show the authenticated parts of the app.
+    // 3. Set the user state directly. This is the key.
+    // This will cause React to re-render the application and show the
+    // authenticated parts (like the dashboard) without a page reload.
     setUser(data.user);
   };
 
