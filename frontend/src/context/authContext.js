@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // This function is now the single source of truth for checking user status.
+  // This function is still used to verify the user when the app first loads.
   const checkUserStatus = useCallback(async () => {
     try {
       const { data } = await api.get('/auth/me');
@@ -15,28 +15,29 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setUser(null);
     } finally {
-      // We only set loading to false after the initial check.
-      if (loading) setLoading(false);
+      setLoading(false);
     }
-  }, [loading]); // Dependency on loading to prevent re-runs
+  }, []);
 
-  // Initial check when the app loads
+  // Initial check when the app loads or user revisits.
   useEffect(() => {
     checkUserStatus();
   }, [checkUserStatus]);
 
   const login = async (email, password) => {
-    // Step 1: Perform the login API call. The backend will set the cookie.
-    await api.post('/auth/login', { email, password });
-    // Step 2: Immediately re-check the user status. This forces the app
-    // to use the new cookie and re-validates the user session.
-    await checkUserStatus();
+    // Step 1: Perform the login API call.
+    // The backend sets the cookie AND returns the user data.
+    const { data } = await api.post('/auth/login', { email, password });
+    
+    // Step 2: Directly use the user data from the response to set the state.
+    // This is more reliable than making a second request immediately.
+    setUser(data);
   };
 
   const register = async (userData) => {
-    // Same logic as login: register, then immediately re-validate.
-    await api.post('/auth/register', userData);
-    await checkUserStatus();
+    // Same logic as login: register and use the response data directly.
+    const { data } = await api.post('/auth/register', userData);
+    setUser(data);
   };
 
   const logout = async () => {
