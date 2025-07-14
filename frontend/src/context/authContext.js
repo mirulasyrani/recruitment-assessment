@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // This function is still used to verify the user when the app first loads.
+  // This function is the single source of truth for checking user status.
   const checkUserStatus = useCallback(async () => {
     try {
       const { data } = await api.get('/auth/me');
@@ -15,22 +15,20 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setUser(null);
     } finally {
-      setLoading(false);
+      // We only set loading to false after the initial check.
+      if (loading) setLoading(false);
     }
-  }, []);
+  }, [loading]);
 
-  // Initial check when the app loads or user revisits.
+  // Initial check when the app loads
   useEffect(() => {
     checkUserStatus();
   }, [checkUserStatus]);
 
   const login = async (email, password) => {
-    // Step 1: Perform the login API call.
-    // The backend sets the cookie AND returns the user data.
+    // The backend sets the cookie and returns the user data.
     const { data } = await api.post('/auth/login', { email, password });
-    
-    // Step 2: Directly use the user data from the response to set the state.
-    // This is more reliable than making a second request immediately.
+    // Directly use the user data from the response to set the state.
     setUser(data);
   };
 
@@ -46,7 +44,6 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
     } catch (error) {
       console.error("Logout failed", error);
-      // Still clear user on the frontend even if backend call fails
       setUser(null);
     }
   };

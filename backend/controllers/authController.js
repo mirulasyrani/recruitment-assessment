@@ -15,7 +15,8 @@ const sendTokenResponse = (user, statusCode, res) => {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
     httpOnly: true, // Prevents access from JavaScript (XSS protection)
     secure: true, // Required for cross-domain cookies
-    sameSite: 'lax', // Use 'lax' for better compatibility in some cross-domain scenarios
+    sameSite: 'none', 
+    path: '/', // <-- CRITICAL: Make cookie available to all paths
   };
 
   res
@@ -69,8 +70,9 @@ const logoutUser = (req, res, next) => {
   res.cookie('token', 'none', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'none',
     secure: true,
+    path: '/', // <-- CRITICAL: Make sure to clear the correct cookie
   });
   res.status(200).json({ success: true, data: {} });
 };
