@@ -10,7 +10,11 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const loadUser = async () => {
       const token = localStorage.getItem('token');
-      if (token) {
+      
+      // Log the token retrieved from localStorage on page load
+      console.log("AuthContext (on load): Token from localStorage is:", token);
+
+      if (token && token !== 'undefined') {
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         try {
           const { data } = await api.get('/auth/me');
@@ -26,23 +30,26 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });
+
+    // Log the token received from the server after login
+    console.log("AuthContext (on login): Token received from server is:", data.token);
+
     localStorage.setItem('token', data.token);
-    // This is the sure-fire fix. It forces the browser to reload the page.
-    // On reload, the useEffect above will run, find the new token,
-    // and successfully authenticate the user.
     window.location.reload();
   };
 
   const register = async (userData) => {
     const { data } = await api.post('/auth/register', userData);
+
+    // Log the token received from the server after registration
+    console.log("AuthContext (on register): Token received from server is:", data.token);
+
     localStorage.setItem('token', data.token);
-    // Same reload strategy for registration.
     window.location.reload();
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    // Reload after logout to ensure all state is cleared.
     window.location.reload();
   };
 
