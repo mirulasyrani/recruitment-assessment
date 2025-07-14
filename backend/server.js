@@ -17,21 +17,18 @@ const candidateRoutes = require('./routes/candidateRoutes');
 const app = express();
 
 // =======================================================
-// ==> START: Final CORS Configuration <==
+// ==> START: Correct CORS Configuration <==
 // =======================================================
 const corsOptions = {
   origin: process.env.CORS_ORIGIN,
-  credentials: true, // This is important for cookies/auth headers
+  credentials: true,
 };
 
-// This line explicitly handles the pre-flight OPTIONS requests.
-// It must come BEFORE the main app.use(cors(corsOptions)).
-app.options('*', cors(corsOptions)); 
-
-// This line handles the actual requests (GET, POST, etc.)
+// This single line is the standard and correct way to apply CORS.
+// The problematic app.options('*', ...) line has been removed.
 app.use(cors(corsOptions));
 // =======================================================
-// ==> END: Final CORS Configuration <==
+// ==> END: Correct CORS Configuration <==
 // =======================================================
 
 app.use(express.json());
